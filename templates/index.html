@@ -1,0 +1,484 @@
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Kalkulator Metode Numerik</title>
+
+    <link rel="stylesheet"
+    href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <header>
+
+    <h1> Kalkulator Metode Numerik</h1>
+
+    <p>
+        Penyelesaian Persamaan Diferensial Biasa
+    </p>
+
+    <p>
+        Metode Euler | Heun | RK3 | dan RK4
+    </p>
+
+    </header>
+
+    <div class="container">
+    <div class="top-section">
+    <div class="input-card">
+
+        <form method="POST">
+
+            <div class="form-group">
+                <label>Fungsi f(x,y)</label>
+                <input 
+                        type="text"
+                        name="fungsi"
+                       placeholder="Contoh: x + y"
+                       value="{{ request.form.get('fungsi','') }}">
+            </div>
+
+            <div class="form-group">
+                <label>x₀ (nilai awal x)</label>
+                <input type="number" step="any" name="x0" value="{{ request.form.get('x0','') }}">
+            </div>
+
+            <div class="form-group">
+                <label>y₀ (nilai awal y)</label>
+                <input type="number" step="any" name="y0" value="{{ request.form.get('y0','') }}">
+            </div>
+
+            <div class="form-group">
+                <label>h (step size)</label>
+                <input type="number" step="any" name="h"  value="{{ request.form.get('h','') }}">
+            </div>
+
+            <div class="form-group">
+                <label>x Target (titik tujuan)</label>
+                <input type="number" step="any" name="xtarget" value="{{ request.form.get('xtarget','') }}">
+            </div>
+
+            <div class="form-group">
+                <label>Metode</label>
+
+                <select name="metode">
+
+                <option value="Euler"
+                {% if request.form.get('metode') == 'Euler' %}
+                selected
+                {% endif %}
+                >
+                Euler
+                </option>
+
+                <option value="Heun"
+                {% if request.form.get('metode') == 'Heun' %}
+                selected
+                {% endif %}
+                >
+                Heun
+                </option>
+
+                <option value="Runge-Kutta Orde 3"
+                {% if request.form.get('metode') == 'Runge-Kutta Orde 3' %}
+                selected
+                {% endif %}
+                >
+                Runge-Kutta Orde 3
+                </option>
+
+                <option value="Runge-Kutta Orde 4"
+                {% if request.form.get('metode') == 'Runge-Kutta Orde 4' %}
+                selected
+                {% endif %}
+                >
+                Runge-Kutta Orde 4
+                </option>
+
+                </select>
+            </div>
+
+            <button type="submit">
+                Hitung
+            </button>
+
+        </form>
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+    {% endif %}
+
+    </div>
+
+    <div class="info-card">
+
+    <h2>Informasi Perhitungan</h2>
+
+    {% if hasil %}
+
+    <p><b>Fungsi:</b> {{ hasil.fungsi }}</p>
+
+    <p><b>x0:</b> {{ hasil.x0 }}</p>
+
+    <p><b>y0:</b> {{ hasil.y0 }}</p>
+
+    <p><b>h:</b> {{ hasil.h }}</p>
+
+    <p><b>x Target:</b> {{ hasil.xtarget }}</p>
+
+    <p><b>Metode:</b> {{ hasil.metode }}</p>
+
+    <hr>
+
+    {% if hasil.hasil_euler %}
+
+        <hr>
+
+        <h3>Hasil Aproksimasi</h3>
+
+        <p>
+            y({{ hasil.xtarget }}) = {{ hasil.hasil_euler }}
+        </p>
+
+        {% endif %}
+
+        {% if hasil.hasil_heun %}
+
+        <hr>
+
+        <h3>Hasil Aproksimasi Heun</h3>
+
+        <p>
+            y({{ hasil.xtarget }})
+            =
+            {{ hasil.hasil_heun }}
+        </p>
+
+        {% endif %}
+
+        {% if hasil.hasil_rk3 %}
+
+        <hr>
+
+        <h3>Hasil Aproksimasi RK3</h3>
+
+        <p>
+            y({{ hasil.xtarget }})
+            =
+            {{ hasil.hasil_rk3 }}
+        </p>
+
+        {% endif %}
+
+        {% if hasil.hasil_rk4 %}
+
+        <hr>
+
+        <h3>Hasil Aproksimasi RK4</h3>
+
+        <p>
+            y({{ hasil.xtarget }})
+            =
+            {{ hasil.hasil_rk4 }}
+        </p>
+        {% endif %}
+
+     </div>
+</div>
+
+            {% if hasil.langkah_euler %}
+
+            <div class="hasil">
+
+            <h2>Langkah Penyelesaian Euler</h2>
+
+            {% for langkah in hasil.langkah_euler %}
+            <pre class="langkah-box">{{ langkah }}</pre>
+            {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+
+            {% if hasil.langkah_heun %}
+
+            <div class="hasil">
+
+            <h2>Langkah Penyelesaian Heun</h2>
+
+            {% for langkah in hasil.langkah_heun %}
+            <pre class="langkah-box">{{ langkah }}</pre>
+            {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+
+            {% if hasil.langkah_rk3 %}
+
+            <div class="hasil">
+
+            <h2>Langkah Penyelesaian RK3</h2>
+
+            {% for langkah in hasil.langkah_rk3 %}
+            <pre class="langkah-box">{{ langkah }}</pre>
+            {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+            {% if hasil.langkah_rk4 %}
+
+            <div class="hasil">
+
+            <h2>Langkah Penyelesaian RK4</h2>
+
+            {% for langkah in hasil.langkah_rk4 %}
+
+            <pre class="langkah-box">
+            {{ langkah }}
+            </pre>
+
+            {% endfor %}
+
+            </div>
+
+            {% endif %}
+
+
+      <div class="hasil">
+
+        {% if hasil.tabel_euler %}
+
+        <h3>Tabel Iterasi Euler</h3>
+
+        <table>
+
+            <tr>
+                <th>Iterasi</th>
+                <th>x</th>
+                <th>y</th>
+                <th>Slope(k)</th>
+                <th>y Baru</th>
+            </tr>
+
+            {% for row in hasil.tabel_euler %}
+
+            <tr>
+                <td>{{ row.iterasi }}</td>
+                <td>{{ row.x }}</td>
+                <td>{{ row.y }}</td>
+                <td>{{ row.slope }}</td>
+                <td>{{ row.y_baru }}</td>
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        {% endif %}
+
+        {% if hasil.tabel_heun %}
+
+        <h3>Tabel Iterasi Heun</h3>
+
+        <table>
+
+        <tr>
+            <th>Iterasi</th>
+            <th>x</th>
+            <th>y</th>
+            <th>k1</th>
+            <th>k2</th>
+            <th>y Baru</th>
+        </tr>
+
+        {% for row in hasil.tabel_heun %}
+
+        <tr>
+            <td>{{ row.iterasi }}</td>
+            <td>{{ row.x }}</td>
+            <td>{{ row.y }}</td>
+            <td>{{ row.k1 }}</td>
+            <td>{{ row.k2 }}</td>
+            <td>{{ row.y_baru }}</td>
+         </tr>
+
+            {% endfor %}
+
+         </table>
+
+         {% endif %}
+
+         {% if hasil.tabel_rk3 %}
+
+        <h3>Tabel Iterasi RK3</h3>
+
+        <table>
+
+        <tr>
+            <th>Iterasi</th>
+            <th>x</th>
+            <th>y</th>
+            <th>k1</th>
+            <th>k2</th>
+            <th>k3</th>
+            <th>y Baru</th>
+        </tr>
+
+        {% for row in hasil.tabel_rk3 %}
+
+        <tr>
+            <td>{{ row.iterasi }}</td>
+            <td>{{ row.x }}</td>
+            <td>{{ row.y }}</td>
+            <td>{{ row.k1 }}</td>
+            <td>{{ row.k2 }}</td>
+            <td>{{ row.k3 }}</td>
+            <td>{{ row.y_baru }}</td>
+        </tr>
+
+            {% endfor %}
+
+        </table>
+
+        {% endif %}
+
+        {% if hasil.tabel_rk4 %}
+
+        <h3>Tabel Iterasi RK4</h3>
+
+        <table>
+
+        <tr>
+            <th>Iterasi</th>
+            <th>x</th>
+            <th>y</th>
+            <th>k1</th>
+            <th>k2</th>
+            <th>k3</th>
+            <th>k4</th>
+            <th>y Baru</th>
+        </tr>
+
+        {% for row in hasil.tabel_rk4 %}
+
+        <tr>
+            <td>{{ row.iterasi }}</td>
+            <td>{{ row.x }}</td>
+            <td>{{ row.y }}</td>
+            <td>{{ row.k1 }}</td>
+            <td>{{ row.k2 }}</td>
+            <td>{{ row.k3 }}</td>
+            <td>{{ row.k4 }}</td>
+            <td>{{ row.y_baru }}</td>
+        </tr>
+
+    {% endfor %}
+
+</table>
+
+{% endif %}
+
+{% if hasil.perbandingan_euler %}
+
+<hr>
+
+<h3>Tabel Perbandingan Metode</h3>
+
+<table>
+
+    <tr>
+        <th>Metode</th>
+        <th>Hasil y({{ hasil.xtarget }})</th>
+    </tr>
+
+    <tr>
+        <td>Euler</td>
+        <td>{{ hasil.perbandingan_euler }}</td>
+    </tr>
+
+    <tr>
+        <td>Heun</td>
+        <td>{{ hasil.perbandingan_heun }}</td>
+    </tr>
+
+    <tr>
+        <td>RK3</td>
+        <td>{{ hasil.perbandingan_rk3 }}</td>
+    </tr>
+
+    <tr>
+        <td>RK4</td>
+        <td>{{ hasil.perbandingan_rk4 }}</td>
+    </tr>
+
+</table>
+
+{% endif %}
+
+ <div class="summary-container">
+    
+
+    <div class="summary-card">
+
+    <h3>Hasil Akhir</h3>
+
+    <p>y({{ hasil.xtarget }})</p>
+
+    <div class="nilai-besar">
+
+        {% if hasil.hasil_euler %}
+        {{ hasil.hasil_euler }}
+        {% elif hasil.hasil_heun %}
+        {{ hasil.hasil_heun }}
+        {% elif hasil.hasil_rk3 %}
+        {{ hasil.hasil_rk3 }}
+        {% elif hasil.hasil_rk4 %}
+        {{ hasil.hasil_rk4 }}
+        {% endif %}
+
+</div>
+
+<p><b>Metode :</b> {{ hasil.metode }}</p>
+
+</div>
+
+<div class="summary-card">
+
+    <h3>Metode Terbaik</h3>
+
+    <div class="best-method">
+
+        ✓ Runge-Kutta Orde 4
+
+        <br><br>
+
+        Memiliki akurasi paling tinggi dibanding Euler, Heun, dan RK3.
+
+    </div>
+
+</div>
+
+{% else %}
+
+    <p>Belum ada perhitungan.</p>
+
+{% endif %}
+
+</div>
+
+    <footer>
+
+    <p>
+        Project UAS Metode Numerik • Semester 4 • Kelompok 10
+    </p>
+
+    </footer>
+
+</body>
+</html>
